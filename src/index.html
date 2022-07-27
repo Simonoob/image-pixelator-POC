@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Image Pixelator</title>
+	</head>
+	<body>
+		<!-- <h1>Image Pixelator</h1> -->
+		<div class="shader">
+			<img src="../static/images/placeholder.png" />
+		</div>
+		<div>
+			<h3>Parameters</h3>
+			<div>
+				<h4>Pixels (on shorter axis)</h4>
+				<div id="blocksInputContainer">
+					<input
+						type="range"
+						min="0"
+						max="50"
+						value="36"
+						id="blocksInputRange"
+					/>
+					<input
+						type="number"
+						min="0"
+						max="50"
+						id="blocksInputValue"
+						value="36"
+					/>
+				</div>
+			</div>
+			<div>
+				<h4>Image</h4>
+				<input type="file" accept=".jpg,.jpeg,.png" id="imageInput" />
+			</div>
+		</div>
+		<button class="downloadImage">Download the pixelated image</butt>
+	</body>
+</html>
