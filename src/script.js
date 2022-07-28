@@ -189,8 +189,9 @@ const setPoint = (e) =>{
         x: Math.min(Math.floor(x/blockSize.x), blocks[0]-1),
         y: Math.min(Math.floor(y/blockSize.y), blocks[1]-1)
     }
-    console.clear()
-    console.log({...selectedBlock})
+
+
+
     sandbox.setUniform('u_customBlock', selectedBlock.x, selectedBlock.y)
 }
 
