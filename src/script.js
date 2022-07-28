@@ -131,7 +131,7 @@ document
 	.querySelector('#blocksInputRange')
 	.addEventListener('change', e => setBlocks(e.target.value))
 
-document.querySelector('#blocksInputValue').addEventListener('change', e => setBlocks(e.target.value > 50 ? 50 : e.target.value))
+document.querySelector('#blocksInputValue').addEventListener('change', e => setBlocks(e.target.value > 100 ? 100 : e.target.value))
 
 document
 	.querySelector('#blocksInputRange')
@@ -182,14 +182,13 @@ const setPoint = (e) =>{
     let x = (e.clientX - rect.left)  //x position within the canvas
     let y =  (rect.height + rect.top - e.clientY)  //y position within the canvas and reversed to match other uniforms
     const blockSize = {
-        x: rect.width  / blocks[0],
-        y: rect.height  / blocks[1],
+        x: rect.width  / Math.ceil(blocks[0]),
+        y: rect.height  / Math.ceil(blocks[1]),
     }
     const selectedBlock = {
-        x: Math.min(Math.floor(x/blockSize.x), blocks[0]-1),
-        y: Math.min(Math.floor(y/blockSize.y), blocks[1]-1)
+        x: Math.min(Math.floor(x/blockSize.x), Math.ceil(blocks[0]-1)),
+        y: Math.min(Math.floor(y/blockSize.y), Math.ceil(blocks[1]-1))
     }
-
 
 
     sandbox.setUniform('u_customBlock', selectedBlock.x, selectedBlock.y)

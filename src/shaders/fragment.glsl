@@ -47,9 +47,9 @@ void main(void) {
     vec4 textureColor = texture2D(u_texture, block);
     vec4 color = vec4(0.0);
     if( currentBlock != customBlock){
-        // color = textureColor;
-        // color = vec4(block.x, block.y, vec2(1.0));
-        color = mod(currentBlock, 2.0)==vec2(0.0)? vec4(vec3(0.0), 1.0) : vec4(vec3(1.0),1.0);
+        // color = textureColor; //texture sampling
+        // color = vec4(block.x, block.y, vec2(1.0)); //coordinates color
+        color = mod(currentBlock.x+currentBlock.y, 2.0)==0.0 ? vec4(vec3(0.0), 1.0) : vec4(vec3(1.0),1.0); //chessboard
     }else{
         color = vec4(1.0, vec2(0.0), 1.0);
     }
