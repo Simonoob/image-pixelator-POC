@@ -41,14 +41,14 @@ void main(void) {
     vec2 customBlock = u_customBlock;
 
     //get current block coordinates relative to the total blocks
-    vec2 currentBlock = floor(block / 1.0 * blocks + 0.5);
+    vec2 currentBlock = floor(block / 1.0 * blocks);
 
     // sample color
     vec4 textureColor = texture2D(u_texture, block);
     vec4 color = vec4(0.0);
     if( currentBlock != customBlock){
-        color = textureColor;
-        // color = vec4(block.x, block.y, vec2(1.0));
+        // color = textureColor;
+        color = vec4(block.x, block.y, vec2(1.0));
     }else{
         color = vec4(1.0, vec2(0.0), 1.0);
     }

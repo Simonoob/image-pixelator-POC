@@ -176,7 +176,7 @@ downloadBtn.addEventListener('click', ()=>{
 
 
 //set point
-canvas.addEventListener('mousemove', (e)=>{
+const setPoint = (e) =>{
     const rect = e.target.getBoundingClientRect()
     const blocks = sandbox.uniforms.u_blocks.value[0]
     let x = (e.clientX - rect.left)  //x position within the canvas
@@ -186,9 +186,17 @@ canvas.addEventListener('mousemove', (e)=>{
         y: rect.height  / blocks[1],
     }
     const selectedBlock = {
-        x: Math.floor(x/Math.floor(blockSize.x)),
-        y: Math.floor(y/Math.floor(blockSize.y))
+        x: Math.min(Math.floor(x/blockSize.x), blocks[0]-1),
+        y: Math.min(Math.floor(y/blockSize.y), blocks[1]-1)
     }
+    console.clear()
+    console.log({...selectedBlock})
     sandbox.setUniform('u_customBlock', selectedBlock.x, selectedBlock.y)
-    console.log(...sandbox.uniforms.u_customBlock.value)
-})
+}
+
+canvas.addEventListener("mousemove", (e)=>{
+    if(e.buttons !== 1) return
+    setPoint(e)
+});
+
+canvas.addEventListener("mousedown", (e)=>setPoint(e));
