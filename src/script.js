@@ -9,11 +9,92 @@ const img = shaderContainer.querySelector('img')
 const canvas = document.createElement('canvas')
 canvas.getContext('webgl', {preserveDrawingBuffer: true})  //needed to capture images
 const sandbox = new GlslCanvas(canvas)
+window.GlslCanvas = sandbox
 shaderContainer.append(canvas)
 
 const defaultParams = {
-	blocks: 36,
+	blocks: 23,
 	texture: defaultTexture,
+}
+
+const modifiedPixels = {}
+
+
+const updateCustomTextureUniform = ({
+    x,
+    y,
+    r,
+    g,
+    b,
+    a
+}) => {
+
+    const dataArray = window.customTextureData
+
+    const blocks = {
+        x: sandbox.uniforms.u_blocks.value[0][0],
+        y: sandbox.uniforms.u_blocks.value[0][1]
+    }
+    
+    const selectedBlockIndex = dataArray.length - (blocks.x * 4 * y) - (blocks.x - x) * 4
+
+    dataArray[selectedBlockIndex] = r
+    dataArray[selectedBlockIndex+1] = g
+    dataArray[selectedBlockIndex+2] = b
+    dataArray[selectedBlockIndex+3] = a
+
+    loadCustomTexture(dataArray)
+}
+
+
+const loadCustomTexture = (data) => {
+    const blocks = {
+        x: sandbox.uniforms.u_blocks.value[0][0],
+        y: sandbox.uniforms.u_blocks.value[0][1]
+    }
+    const gl = sandbox.gl
+    const options = {}
+    options.level = 0;
+    options.width = blocks.x;
+    options.height = blocks.y;
+    options.format = gl.RGBA;
+    options.type = gl.UNSIGNED_BYTE;
+    options.filtering = 'nearest'
+
+    window.customTextureData = data
+
+    sandbox.uniformTexture('u_texture_modifications', {data: data, width: options.width, height: options.height}, options)
+}
+
+/*
+ * Pass in an array of rgba
+ */
+function textureFromFloats() {
+    // RGBA/UNSIGNED_BYTE pixels
+    const blocks = {
+        x: sandbox.uniforms.u_blocks.value[0][0],
+        y: sandbox.uniforms.u_blocks.value[0][1]
+    }
+    var data = new Uint8Array(blocks.x * blocks.y * 4);
+    for (let pixel = 0; pixel <= Math.ceil(blocks.x * blocks.y * 4); pixel+=4) {
+        const getRandomColorValue = () => Math.random() * 100
+        data[pixel] = getRandomColorValue()
+        data[pixel+1] = getRandomColorValue()
+        data[pixel+2] = getRandomColorValue()
+        data[pixel+3] = getRandomColorValue()
+    }
+
+    loadCustomTexture(data)
+
+
+    updateCustomTextureUniform({
+            x: 1,
+            y: 1,
+            r: 255,
+            g: 0,
+            b: 0,
+            a: 255,
+    })
 }
 
 sandbox.resize = () => {
@@ -81,41 +162,16 @@ const setBlocks = value => {
     sandbox.setUniform('u_blocks', blocks.x, blocks.y)
     document.querySelector('#blocksInputRange').value = value
     document.querySelector('#blocksInputValue').value = value
-}
 
-const createTexture = ({width, height}) => {
-    const buffer = new Uint8ClampedArray(width * height * 4); // have enough bytes
-
-    //fill buffer
-    for(var y = 0; y < height; y++) {
-        for(var x = 0; x < width; x++) {
-            var pos = (y * width + x) * 4; // position in buffer based on x and y
-            buffer[pos  ] = 255            // some R value [0, 255]
-            buffer[pos+1] = 0              // some G value
-            buffer[pos+2] = 0              // some B value
-            buffer[pos+3] = 255            // set alpha channel
-        }
-    }
-
-    //create texture data
-    const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d')
-    canvas.width = width
-    canvas.height = height
-    const iData = ctx.createImageData(width, height) // create imageData object
-    iData.data.set(buffer) // set our buffer as source
-    ctx.putImageData(iData, 0, 0) // update canvas with new data
-    const dataUri = canvas.toDataURL() // produces a PNG file
-    
-    return dataUri
+    textureFromFloats()
 }
 
 const initCanvas = async () => {
 	sandbox.load(fragmentShader)
     setBlocks(defaultParams.blocks)
 	await updateTextureUniform(defaultParams.texture)
-	// sandbox.setUniform('u_texture_modifications', createTexture({width: 1, height: 1}))
 	shaderContainer.classList.add('loaded')
+    console.log(sandbox)
 }
 
 initCanvas()
@@ -129,7 +185,9 @@ window.addEventListener('resize', function () {
  */
 document
 	.querySelector('#blocksInputRange')
-	.addEventListener('change', e => setBlocks(e.target.value))
+	.addEventListener('change', e => {
+        setBlocks(e.target.value)
+    })
 
 document.querySelector('#blocksInputValue').addEventListener('change', e => setBlocks(e.target.value > 100 ? 100 : e.target.value))
 
@@ -192,6 +250,19 @@ const setPoint = (e) =>{
 
 
     sandbox.setUniform('u_customBlock', selectedBlock.x, selectedBlock.y)
+
+
+    updateCustomTextureUniform({
+            x: selectedBlock.x,
+            y: selectedBlock.y,
+        color:{
+            r: 255,
+            g: 0,
+            b: 0,
+            a: 255,
+        }
+    })
+
 }
 
 canvas.addEventListener("mousemove", (e)=>{
